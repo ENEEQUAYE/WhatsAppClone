@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ChatList from './screens/ChatList';
 import ChatScreen from './screens/ChatScreen';
 import { Ionicons } from '@expo/vector-icons'; // Importing icons
+import { View } from 'react-native';
 
 const Stack = createStackNavigator();
 
@@ -24,7 +25,7 @@ export default function App() {
         }}
       >
         <Stack.Screen
-          name="ChatList"
+          name="WhatsApp"
           component={ChatList}
           options={{
             title: 'WhatsApp',
@@ -36,10 +37,16 @@ export default function App() {
         <Stack.Screen
           name="ChatScreen"
           component={ChatScreen}
-          options={({ route }) => ({
+          options={({ route, navigation }) => ({
             title: route.params.name,
             headerLeft: () => (
-              <Ionicons name="arrow-back" size={24} color="white" style={{ marginLeft: 15 }} onPress={() => navigation.goBack()} />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="white"
+                style={{ marginLeft: 15 }}
+                onPress={() => navigation.goBack()}
+              />
             ),
             headerRight: () => (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
