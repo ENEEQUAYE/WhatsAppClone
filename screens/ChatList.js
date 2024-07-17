@@ -1,46 +1,51 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const chats = [
-  { id: '1', name: 'John Doe', message: 'Hey, how are you?' },
-  { id: '2', name: 'Jane Smith', message: 'What’s up?' },
-  // Add more chat data here
+const contacts = [
+  { id: '1', name: 'Caleb Ampong', photo: 'https://via.placeholder.com/150' },
+  { id: '2', name: 'Ebenezer Tabi', photo: 'https://via.placeholder.com/150' },
+  // Add more contacts as needed
 ];
 
-const ChatList = ({ navigation }) => {
+const ChatList = () => {
+  const navigation = useNavigation();
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.item} 
+      onPress={() => navigation.navigate('ChatScreen', { name: item.name })}
+    >
+      <Image source={{ uri: item.photo }} style={styles.photo} />
+      <Text style={styles.name}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={chats}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('ChatScreen', { name: item.name })}>
-            <View style={styles.chatItem}>
-              <Text style={styles.chatName}>{item.name}</Text>
-              <Text style={styles.chatMessage}>{item.message}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+    <FlatList
+      data={contacts}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  chatItem: {
-    padding: 16,
+  item: {
+    flexDirection: 'row',
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    alignItems: 'center',
   },
-  chatName: {
-    fontWeight: 'bold',
+  photo: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
-  chatMessage: {
-    color: '#666',
+  name: {
+    fontSize: 18,
   },
 });
 
