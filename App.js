@@ -4,8 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Dimensions, TextInput, Alert } from 'react-native';
 import Modal from 'react-native-modal';
+import * as Contacts from 'expo-contacts'; // Import Contacts API
 import ChatList from './screens/ChatList';
 import ChatScreen from './screens/ChatScreen';
 import StatusScreen from './screens/StatusScreen'; 
@@ -16,43 +17,46 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
 
-function HomeTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === 'Chats') {
-            iconName = 'chatbubble';
-          } else if (route.name === 'Status') {
-            iconName = 'ellipse';
-          } else if (route.name === 'Calls') {
-            iconName = 'call';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#075E54',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: [
-          {
-            display: 'flex'
-          },
-          null
-        ]
-      })}
-    >
-      <Tab.Screen name="Chats" component={ChatList} />
-      <Tab.Screen name="Status" component={StatusScreen} />
-      <Tab.Screen name="Calls" component={CallsScreen} />
-    </Tab.Navigator>
-  );
-}
-
 export default function App() {
   const [isModalVisible, setModalVisible] = React.useState(false);
+  const [isSearchVisible, setSearchVisible] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [contacts, setContacts] = React.useState([]);
+
+  React.useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === 'granted') {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.PhoneNumbers],
+        });
+
+        // Filter contacts that have WhatsApp
+        const whatsappContacts = data.filter(contact => {
+          return contact.phoneNumbers.some(
+            phone => phone.label === 'WhatsApp' || phone.label === 'mobile'
+          );
+        });
+
+        setContacts(whatsappContacts);
+      } else {
+        Alert.alert('Permissions required', 'Please grant contacts permission to use this feature.');
+      }
+    })();
+  }, []);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+  };
+
+  const toggleSearch = () => {
+    setSearchVisible(!isSearchVisible);
+  };
+
+  const startChat = (contact) => {
+    // Logic to start a new chat with the selected contact
+    Alert.alert('Start Chat', `Starting chat with ${contact.name}`);
+    // Implement your chat starting logic here
   };
 
   return (
@@ -69,7 +73,9 @@ export default function App() {
           },
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="search" size={24} color="white" style={{ marginRight: 15 }} />
+              <TouchableOpacity onPress={toggleSearch} style={{ marginRight: 15 }}>
+                <Ionicons name="search" size={24} color="white" />
+              </TouchableOpacity>
               <TouchableOpacity onPress={toggleModal} style={{ marginRight: 15 }}>
                 <Ionicons name="ellipsis-vertical" size={24} color="white" />
               </TouchableOpacity>
@@ -82,6 +88,21 @@ export default function App() {
           component={HomeTabs}
           options={{
             title: 'WhatsApp',
+            headerTitle: () => (
+              <View>
+                {isSearchVisible ? (
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoFocus
+                  />
+                ) : (
+                  <Text style={styles.headerTitle}>WhatsApp</Text>
+                )}
+              </View>
+            ),
           }}
         />
         <Stack.Screen
@@ -139,6 +160,10 @@ export default function App() {
           </TouchableOpacity>
         </View>
       </Modal>
+      {/* Message Icon */}
+      <TouchableOpacity style={styles.messageIcon} onPress={toggleModal}>
+        <Ionicons name="chatbubble-ellipses" size={24} color="white" />
+      </TouchableOpacity>
     </NavigationContainer>
   );
 }
@@ -161,5 +186,30 @@ const styles = StyleSheet.create({
   modalItem: {
     paddingVertical: 10,
     fontSize: 16,
+  },
+  searchInput: {
+    height: 40,
+    width: width - 100,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    color: 'black',
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  messageIcon: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+    backgroundColor: '#075E54',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
 });
