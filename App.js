@@ -157,7 +157,7 @@ export default function App() {
           <TouchableOpacity onPress={() => { toggleModal(); alert('Starred messages'); }}>
             <Text style={styles.modalItem}>Starred messages</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => { toggleModal(); navigation.navigate('SettingsScreen'); }}>
+          <TouchableOpacity onPress={() => { toggleModal(); alert('Settings'); }}>
             <Text style={styles.modalItem}>Settings</Text>
           </TouchableOpacity>
         </View>
