@@ -10,7 +10,7 @@ import ChatList from './screens/ChatList';
 import ChatScreen from './screens/ChatScreen';
 import StatusScreen from './screens/StatusScreen'; 
 import CallsScreen from './screens/CallsScreen';
-import SettingsScreen from './screens/SettingsScreen';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,13 +129,6 @@ export default function App() {
               </View>
             ),
           })}
-        />
-        <Stack.Screen
-          name="SettingsScreen"
-          component={SettingsScreen}
-          options={{
-            title: 'Settings',
-          }}
         />
       </Stack.Navigator>
       <Modal
